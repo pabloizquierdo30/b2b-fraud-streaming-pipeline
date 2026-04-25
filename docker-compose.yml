@@ -1,0 +1,97 @@
+services:
+  zookeeper:
+    image: zookeeper:3.9
+    container_name: zookeeper-node
+    networks:
+      - fraud-network
+    volumes:
+      - zookeeper_data:/data
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-broker
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    networks:
+      - fraud-network
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+
+  spark-master:
+    image: apache/spark:3.4.1
+    container_name: spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    networks:
+      - fraud-network
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+      
+  spark-worker:
+    image: apache/spark:3.4.1
+    container_name: spark-worker
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    networks:
+      - fraud-network
+    depends_on:
+      - spark-master
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    networks:
+      - fraud-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app-container:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: app-container
+    networks:
+      - fraud-network
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "8501:8501"
+    working_dir: /app
+    tty: true 
+    depends_on:
+      - kafka
+      - spark-master
+      - postgres
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+
+name: fraud-pipeline
+
+networks:
+  fraud-network:
+    name: fraud-network
+    driver: bridge
+
+volumes:
+  zookeeper_data:
+  kafka_data:
+  postgres_data:
