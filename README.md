@@ -35,14 +35,16 @@ El pipeline descansa sobre cinco componentes distribuidos bajo una red local mic
 
 ```text
 fraud-detection-project/
-├── .env                  # Credenciales enmascaradas (Bases de datos)
-├── docker-compose.yml    # Definición de infraestructura unificada e imágenes (Spark Cluster, Kafka, etc)
-├── Dockerfile            # Configuración inmutable (Python 3.9 Debian Bullseye + Java 11)
-├── README.md             # Documentación del proyecto
+├── .gitignore             # Reglas de exclusión para seguridad y archivos temporales
+├── docker-compose.yml     # Definición de infraestructura unificada (Spark, Kafka, etc.)
+├── Dockerfile             # Configuración inmutable (Python 3.9 + Java 11)
+├── README.md              # Documentación del proyecto
 └── src/
-    ├── dashboard.py      # Front-End y Analítica de Datos (Streamlit)
-    ├── processor.py      # Core Inteligencia Artificial y Streaming (PySpark)
-    └── producer.py       # Simulación y empaquetador Kafka
+    ├── dashboard.py       # Front-End y Analítica de Datos (Streamlit)
+    ├── processor.py       # Core Inteligencia Artificial y Streaming (PySpark)
+    └── producer.py        # Simulación y empaquetador Kafka
+
+* Nota: El archivo .env de credenciales se omite del repositorio por seguridad.
 ```
 
 ---
