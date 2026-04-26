@@ -1,0 +1,30 @@
+# Entornos Virtuales
+venv/
+env/
+.env
+
+# Compilados de Python y Cachés
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Apache Spark
+spark-warehouse/
+derby.log
+metastore_db/
+checkpoint/
+checkpoints/
+
+# Docker y Archivos de SO
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# Archivos de Streamlit / Logs generados
+.streamlit/
+*.log
